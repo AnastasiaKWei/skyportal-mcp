@@ -1,8 +1,8 @@
 # skyportal-mcp
 
-MCP ([Model Context Protocol](https://modelcontextprotocol.io)) server for [SkyPortal](https://skyportal.io) and [Fritz](https://fritz.science). Query astronomical transient data — photometry, spectra, classifications, observability — directly from AI coding assistants like Claude Code, Claude Desktop, and Cursor.
+> **Beta:** This project is under active development. Bug reports, feature requests, and pull requests are very welcome — please [open an issue](https://github.com/AnastasiaKWei/skyportal-mcp/issues) or submit a PR.
 
-You do **not** need a local SkyPortal deployment. Point this server at any SkyPortal/Fritz URL and authenticate with your API token.
+A **local** MCP ([Model Context Protocol](https://modelcontextprotocol.io)) server for [SkyPortal](https://skyportal.io) and [Fritz](https://fritz.science). It runs on your own machine and exposes SkyPortal data as tools that AI coding assistants — Claude Code, Claude Desktop, Cursor — can call directly. Query astronomical transient data — photometry, spectra, classifications, observability — without leaving your AI assistant.
 
 ## Installation
 
@@ -80,16 +80,6 @@ Add to `.cursor/mcp.json` in your project root:
 }
 ```
 
-### HTTP mode (multi-user)
-
-For shared deployments where multiple users connect with their own tokens:
-
-```bash
-MCP_TRANSPORT=http MCP_PORT=8000 SKYPORTAL_URL="https://fritz.science" python -m skyportal_mcp
-```
-
-Clients connect to `http://localhost:8000/mcp` and pass their SkyPortal API token as a Bearer header.
-
 ## Available Tools
 
 ### Source Data — `source_products.py`
@@ -122,6 +112,9 @@ Clients connect to `http://localhost:8000/mcp` and pass their SkyPortal API toke
 | `call_skyportal_api` | Direct API calls to any SkyPortal endpoint |
 | `get_api_quick_reference` | API endpoint documentation |
 | `get_tools_quick_reference` | Tool usage guide |
+
+
+
 
 ## Test Prompts
 
@@ -228,17 +221,6 @@ Expects: Calls `get_tns_summary` and `get_source_observability` (potentially in 
 > "Analyze both the light curve and color evolution of ZTF20acigmel in text format"
 
 Expects: Calls `analyze_light_curve` and `analyze_color_evolution`, presenting rise/fade metrics alongside color trend information.
-
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SKYPORTAL_URL` | `http://localhost:5001` | SkyPortal/Fritz instance URL |
-| `SKYPORTAL_TOKEN` | (none) | API token for authentication |
-| `MCP_TRANSPORT` | `stdio` | Transport mode: `stdio` or `http` |
-| `MCP_HOST` | `127.0.0.1` | HTTP mode bind address |
-| `MCP_PORT` | `8000` | HTTP mode port |
-| `MCP_BASE_URL` | `http://localhost:{MCP_PORT}` | Public URL for OAuth callbacks (HTTP mode) |
 
 ## License
 
