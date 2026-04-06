@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "skyportal-mcp"
+version = "0.1.0"
+description = "MCP server for SkyPortal / Fritz — query astronomical transient data from AI coding assistants"
+readme = "README.md"
+license = "BSD-3-Clause"
+requires-python = ">=3.10"
+authors = [
+    { name = "SkyPortal Contributors" },
+]
+keywords = ["mcp", "skyportal", "fritz", "astronomy", "transients", "ztf"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+dependencies = [
+    "fastmcp>=2.0.0",
+    "httpx>=0.27.0",
+    "astropy>=6.0.0",
+    "numpy>=1.23.0",
+    "scipy>=1.10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pytest",
+    "pytest-asyncio",
+]
+
+[project.scripts]
+skyportal-mcp = "skyportal_mcp.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/AnastasiaKWei/skyportal-mcp"
+Repository = "https://github.com/AnastasiaKWei/skyportal-mcp"
+Issues = "https://github.com/AnastasiaKWei/skyportal-mcp/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["skyportal_mcp"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
