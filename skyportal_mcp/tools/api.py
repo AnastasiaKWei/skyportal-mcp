@@ -56,6 +56,11 @@ async def call_skyportal_api(
     """
     Make an API call to SkyPortal.
 
+    ⚠️  WRITE RISK: POST, PUT, and DELETE requests will permanently modify or
+    delete data on your SkyPortal/Fritz instance. These operations cannot be
+    undone through this tool. Always confirm the endpoint and payload before
+    using a non-GET method.
+
     Args:
         endpoint: API endpoint (e.g., "/api/sources")
         method: HTTP method (GET, POST, PUT, DELETE)
@@ -66,19 +71,29 @@ async def call_skyportal_api(
     if not token:
         return "Not authenticated. Configure SKYPORTAL_TOKEN or send Bearer token."
 
-    logger.info("API call → %s %s", method, endpoint)
+    method_upper = method.upper()
+    if method_upper in ("POST", "PUT", "PATCH", "DELETE"):
+        logger.warning("WRITE operation: %s %s", method_upper, endpoint)
+
+    logger.info("API call → %s %s", method_upper, endpoint)
     url = f"{SKYPORTAL_URL}{endpoint}"
+    write_warning = ""
+    if method_upper in ("POST", "PUT", "PATCH", "DELETE"):
+        write_warning = (
+            f"⚠️  WARNING: This {method_upper} request will modify data in your "
+            f"SkyPortal/Fritz account. This action cannot be undone through this tool.\n\n"
+        )
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             response = await client.request(
-                method=method,
+                method=method_upper,
                 url=url,
                 headers={"Authorization": f"token {token}"},
                 params=params,
                 json=data,
             )
         response.raise_for_status()
-        return str(response.json())
+        return write_warning + str(response.json())
     except httpx.HTTPStatusError as e:
         return f"HTTP Error {e.response.status_code}: {e.response.text}"
     except Exception as e:

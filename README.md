@@ -4,6 +4,8 @@
 
 A **local** MCP ([Model Context Protocol](https://modelcontextprotocol.io)) server for [SkyPortal](https://skyportal.io) and [Fritz](https://fritz.science). It runs on your own machine and exposes SkyPortal data as tools that AI coding assistants — Claude Code, Claude Desktop, Cursor — can call directly. Query astronomical transient data — photometry, spectra, classifications, observability — without leaving your AI assistant.
 
+> **Compatibility:** This has been tested with **Claude Code** and **Claude Desktop**. It has **not** been tested with other MCP-compatible clients (e.g., Cursor, OpenAI Codex, Gemini, or other services) — the setup steps for those clients may differ from the instructions below.
+
 ## Installation
 
 ```bash
@@ -82,36 +84,57 @@ Add to `.cursor/mcp.json` in your project root:
 
 ## Available Tools
 
+> **Read vs Write**
+> - **Read** — queries data from SkyPortal/Fritz; no data is created or modified.
+> - **Write (SkyPortal)** — can create, update, or delete data in your SkyPortal/Fritz account. Use with care; these operations may not be reversible.
+> - **Write (local)** — creates files on your local machine (notebooks, CSVs). Does not touch SkyPortal.
+
 ### Source Data — `source_products.py`
-| Tool | Description |
-|------|-------------|
-| `get_source_photometry` | Light curve data as CSV (mag or flux format) |
-| `get_source_spectra` | Spectroscopic observations (summary, CSV, or JSON) |
-| `get_source_classifications` | Classification history with probabilities |
-| `get_source_comments_and_annotations` | User comments and ML annotations |
-| `get_source_host_galaxy` | Host galaxy properties and offset |
-| `get_tns_summary` | Complete TNS/AstroNote report in one call |
+| Tool | Mode | Description |
+|------|------|-------------|
+| `get_source_photometry` | Read | Light curve data as CSV (mag or flux format) |
+| `get_source_spectra` | Read | Spectroscopic observations (summary, CSV, or JSON) |
+| `get_source_classifications` | Read | Classification history with probabilities |
+| `get_source_comments_and_annotations` | Read | User comments and ML annotations |
+| `get_source_host_galaxy` | Read | Host galaxy properties and offset |
+| `get_tns_summary` | Read | Complete TNS/AstroNote report in one call |
 
 ### Analysis — `analysis.py`
-| Tool | Description |
-|------|-------------|
-| `analyze_light_curve` | Rise/fade times, peak brightness, multi-band analysis |
-| `analyze_color_evolution` | Color curves (g-r) with matched and interpolated methods |
+| Tool | Mode | Description |
+|------|------|-------------|
+| `analyze_light_curve` | Read / Write (local) | Rise/fade times, peak brightness; notebook mode writes `.ipynb` + CSV to disk |
+| `analyze_color_evolution` | Read / Write (local) | Color curves (g-r); notebook mode writes `.ipynb` + CSV to disk |
 
 ### Observing — `observing.py`, `astro_utils.py`
-| Tool | Description |
-|------|-------------|
-| `get_source_observability` | Observing windows from Keck, VLT, Gemini, Palomar, etc. |
-| `convert_time` | MJD / JD / ISO / Unix time conversion |
-| `get_survey_urls` | Links to Legacy Survey, PanSTARRS, SDSS, NED, SIMBAD, etc. |
-| `search_sources_near_position` | Cone search in SkyPortal |
+| Tool | Mode | Description |
+|------|------|-------------|
+| `get_source_observability` | Read | Observing windows from Keck, VLT, Gemini, Palomar, etc. |
+| `convert_time` | Read | MJD / JD / ISO / Unix time conversion |
+| `get_survey_urls` | Read | Links to Legacy Survey, PanSTARRS, SDSS, NED, SIMBAD, etc. |
+| `search_sources_near_position` | Read | Cone search in SkyPortal |
+
+### Filtering — `filtering.py`
+| Tool | Mode | Description |
+|------|------|-------------|
+| `filter_candidates` | Read | Search the scanning page for candidates matching criteria |
+| `get_candidate_filter_reference` | Read | Documentation for available filter parameters |
+| `generate_watchlist_filter` | Read | Generate MongoDB pipeline JSON for a watchlist (output only, not saved to Fritz) |
+
+### Bulk Analysis — `bulk_analysis.py`
+| Tool | Mode | Description |
+|------|------|-------------|
+| `generate_bulk_lightcurve_code` | Write (local) | Writes a Jupyter notebook to `ztf_lightcurves/` for bulk ZTF light curve downloads |
+| `generate_cone_search_code` | Write (local) | Writes code to `ztf_cone_search/` for multi-position cone searches |
+| `generate_fritz_bulk_query_code` | Write (local) | Writes a notebook to `fritz_data/` for bulk Fritz photometry/spectra downloads |
+| `generate_alert_download_code` | Write (local) | Writes a notebook to `ztf_alerts/` for downloading ZTF alert packets |
+| `generate_field_visualization_code` | Write (local) | Writes code to visualize ZTF field and CCD coverage |
 
 ### API Access — `api.py`
-| Tool | Description |
-|------|-------------|
-| `call_skyportal_api` | Direct API calls to any SkyPortal endpoint |
-| `get_api_quick_reference` | API endpoint documentation |
-| `get_tools_quick_reference` | Tool usage guide |
+| Tool | Mode | Description |
+|------|------|-------------|
+| `call_skyportal_api` | Read / ⚠️ Write (SkyPortal) | Direct API calls to any endpoint — **POST/PUT/DELETE will modify your SkyPortal account** |
+| `get_api_quick_reference` | Read | API endpoint documentation |
+| `get_tools_quick_reference` | Read | Tool usage guide |
 
 
 
