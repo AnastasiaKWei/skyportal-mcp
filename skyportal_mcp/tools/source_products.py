@@ -590,12 +590,17 @@ async def get_tns_summary(source_name: str) -> str:
                 headers={"Authorization": f"token {token}"},
                 params={
                     "includePhotometry": "true",
-                    "includeSpectra": "true",
                     "includeComments": "false",
                 },
             )
-        resp.raise_for_status()
-        data = resp.json().get("data", {})
+            resp.raise_for_status()
+            data = resp.json().get("data", {})
+            spectra_resp = await client.get(
+                f"{SKYPORTAL_URL}/api/sources/{obj_id}/spectra",
+                headers={"Authorization": f"token {token}"},
+            )
+            spectra_resp.raise_for_status()
+            spectra = spectra_resp.json().get("data", {}).get("spectra", [])
     except httpx.HTTPStatusError as e:
         return f"HTTP Error {e.response.status_code}: {e.response.text}"
     except Exception as e:
@@ -644,7 +649,6 @@ async def get_tns_summary(source_name: str) -> str:
             peak_mag = min(mags)
 
     # Get spectra
-    spectra = data.get("spectra", [])
     latest_spectrum = None
     if spectra:
         sorted_spectra = sorted(
